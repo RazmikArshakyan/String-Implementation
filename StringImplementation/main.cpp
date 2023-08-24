@@ -41,10 +41,22 @@ int main() {
     std::cout << str2.capacity() << std::endl;
     
     String str11("asasasasaaasaas");
+    std::cout << str11 << std::endl;
     str11.push_back('6');
     std::cout << str11 << std::endl;
+    str11.push_back('5');
+    std::cout << str11 << std::endl;
+    str11.pop_back();
+    std::cout << str11 << std::endl;
+    str11.pop_back();
+    std::cout << str11 << std::endl;
+    str11.pop_back();
+    std::cout << str11 << std::endl;
 
-    str11.push_back('7');
+    String str12;
+    std::cout << str12.empty() << std::endl;
+       
+
     
 
 

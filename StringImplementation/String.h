@@ -17,10 +17,11 @@ public:
     String(std::initializer_list<char> init_list);
     ~String();
     String& operator=(const String& other);
+    String operator+=(const String& rhs);
     const char operator[](size_t index);
-    size_t size();
-    bool empty();
-    size_t capacity();
+    size_t size() const;
+    bool empty() const;
+    size_t capacity() const;
     void clear();
     void push_back(const char ch);
     void pop_back();
@@ -35,12 +36,12 @@ private:
         size_t m_size;
         char* m_ptr;
     };
-    size_t m_stack_size = 16; 
+    size_t m_stack_size{16}; 
     union {
         char m_on_stack[16];
         m_dyn_str m_on_heap;
     } m_string;
 };
 
-#include "String.cpp"
+//#include "String.cpp"
 #endif

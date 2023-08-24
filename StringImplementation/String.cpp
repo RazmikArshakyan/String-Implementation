@@ -101,6 +101,21 @@ void String::store_in_heap(size_t init_size, char ch)
     m_in_heap = true;
 }
 
+void String::store_in_heap(char *str)
+{
+    const size_t buf_size = 256;
+    m_string.m_on_heap.m_ptr = new char[buf_size];
+    int length{};
+    for (size_t i{}; *(str + i) != '\0'; ++i) {
+        ++length;
+        m_string.m_on_heap.m_ptr[i] = str[i];
+    }
+    m_string.m_on_heap.m_ptr[length] = '\0';
+    m_string.m_on_heap.m_size = length;
+    m_in_heap = true;
+    m_in_stack = false;
+}
+
 void String::store_in_stack(size_t init_size, char ch)
 {
     for (size_t i{}; i < init_size + 1; ++i) {
@@ -113,6 +128,15 @@ void String::store_in_stack(size_t init_size, char ch)
     m_in_stack = true;
 }
 
+void String::store_in_stack(char *str)
+{
+    for (size_t i{}; *(str + i) != '\0'; ++i) {
+        m_string.m_on_stack[i] = str[i];
+    }
+    m_in_stack = true;
+    m_in_heap = false;
+}
+
 void String::heap_or_stack(size_t init_size, char ch)
 {
     (init_size > m_stack_size ? store_in_heap(init_size,ch) : store_in_stack(init_size,ch));
@@ -120,9 +144,9 @@ void String::heap_or_stack(size_t init_size, char ch)
 
 String::~String()
 {
-    if (m_in_heap) {
-        delete[] m_string.m_on_heap.m_ptr;
-    }
+    // if (m_in_heap) {
+    //     delete[] m_string.m_on_heap.m_ptr;
+    // }
 }
 
 String& String::operator=(const String& other) {
@@ -153,16 +177,48 @@ String String::operator+=(const String &rhs)
     size_t lh_size = size();
     size_t rh_size = rhs.size();
     if (m_in_heap) {
-        for (size_t i{lh_size}, j{}; i < (lh_size + rh_size) && j < rh_size; ++i, ++j) {
-            if (rhs.m_in_heap) {
+        if (rhs.m_in_heap) {
+            for (size_t i{lh_size}, j{}; i < (lh_size + rh_size) && j < rh_size; ++i, ++j) {
                 m_string.m_on_heap.m_ptr[i] = rhs.m_string.m_on_heap.m_ptr[j];
             }
-            else {
+        }
+        else {
+            for (size_t i{lh_size}, j{}; i < (lh_size + rh_size) && j < rh_size; ++i, ++j) {
                 m_string.m_on_heap.m_ptr[i] = rhs.m_string.m_on_stack[j];
             }
         }
+        m_string.m_on_heap.m_size = lh_size + rh_size;
         m_string.m_on_heap.m_ptr[lh_size + rh_size] = '\0';
     }
+    else {
+        if (lh_size + rh_size > m_stack_size) {
+            char* new_str = new char[lh_size + rh_size];
+            for (size_t i{}; i < lh_size; ++i) {
+                new_str[i] = m_string.m_on_stack[i];
+            }
+            if (rhs.m_in_heap) {
+                for (size_t i{lh_size}, j{}; i < (lh_size + rh_size) && j < rh_size; ++i, ++j) {
+                    new_str[i] = rhs.m_string.m_on_heap.m_ptr[j];
+                }
+            }
+            else {
+                for (size_t i{lh_size}, j{}; i < (lh_size + rh_size) && j < rh_size; ++i, ++j) {
+                    new_str[i] = rhs.m_string.m_on_stack[j];
+                }
+            }
+            m_string.m_on_heap.m_ptr = new_str;
+            m_string.m_on_heap.m_size = lh_size + rh_size;
+            m_string.m_on_heap.m_ptr[lh_size + rh_size] = '\0';
+            m_in_heap = true;
+            m_in_stack = false;
+        }
+        else {
+            for (size_t i{lh_size}, j{}; i < (lh_size + rh_size) && j < rh_size; ++i, ++j) {
+                    m_string.m_on_stack[i] = rhs.m_string.m_on_stack[j];
+            }
+        }
+    }
+    return *this;
 }
 
 const char String::operator[](size_t index)
@@ -285,4 +341,19 @@ std::ostream &operator<<(std::ostream &os, const String &str)
         os << str.m_string.m_on_heap.m_ptr;
     }
     return os;
+}
+
+std::istream &operator>>(std::istream &in, String &str)
+{
+    const size_t buf_size = 256;
+    char buf[buf_size];
+    in >> buf;
+
+    if (std::strlen(buf) < str.m_stack_size) {
+        str.store_in_stack(buf);
+    }
+    else {
+        str.store_in_heap(buf);
+    }
+    return in;    
 }

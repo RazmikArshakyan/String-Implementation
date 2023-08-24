@@ -58,17 +58,23 @@ int main() {
        
     String str13("Hello world in dynamic memory");
     String str14(" Appending words as in dyn_mem");
-    String str15(" Append");
+    String str15(" Append  abc");
+    String str16(" ab");
 
     str13 += str14;
     std::cout << str13 << std::endl;
     str13 += str15;
-    std::cout << str13 << std::endl;
+    std::cout << str13 << std::endl; 
+    str15 += str16;
+    std::cout << str15 << std::endl;
+    str15 += str16;
+    std::cout << str15 << std::endl;
+    str16 += str14;
+    std::cout << str16 << std::endl;
 
-    
-
-
-
+    String str17;
+    std::cin >> str17;
+    std::cout << str17; 
 
     return 0;
 }

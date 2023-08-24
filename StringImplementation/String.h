@@ -6,6 +6,8 @@
 #include <iostream>
 #include <exception>
 #include <cstddef>
+#include <cstring>
+#include <vector>
 
 class String {
 public: 
@@ -26,9 +28,12 @@ public:
     void push_back(const char ch);
     void pop_back();
     friend std::ostream& operator<<(std::ostream& os, const String& str);
+    friend std::istream& operator>>(std::istream& in, String& str);
 private:
     void store_in_heap(size_t init_size, char ch);
+    void store_in_heap(char* str);
     void store_in_stack(size_t init_size, char ch);
+    void store_in_stack(char* str);
     void heap_or_stack(size_t init_size, char ch);
     bool m_in_stack{};
     bool m_in_heap{};

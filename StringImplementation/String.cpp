@@ -49,6 +49,9 @@ String::String(const String &other)
     , m_in_stack {other.m_in_stack}
     , m_string {other.m_string}
 {
+    if (m_in_heap) {
+        m_string.m_on_heap.m_ptr = new char[m_string.m_on_heap.m_size];
+    }
 }
 
 String::String(String &&other)
@@ -144,9 +147,9 @@ void String::heap_or_stack(size_t init_size, char ch)
 
 String::~String()
 {
-    // if (m_in_heap) {
-    //     delete[] m_string.m_on_heap.m_ptr;
-    // }
+    if (m_in_heap) {
+        delete[] m_string.m_on_heap.m_ptr;
+    }
 }
 
 String& String::operator=(const String& other) {

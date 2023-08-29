@@ -74,7 +74,13 @@ int main() {
 
     String str17;
     std::cin >> str17;
-    std::cout << str17; 
+    std::cout << str17 << std::endl; 
+
+    String str18 = "Hello Malmo 999999";
+    std::cout << str18 << std::endl;
+    str18 = "hi malmo";
+    std::cout << str18 << std::endl;
+
 
     return 0;
 }

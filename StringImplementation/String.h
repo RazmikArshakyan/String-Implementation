@@ -18,6 +18,7 @@ public:
     String(String&& other);
     String(std::initializer_list<char> init_list);
     ~String();
+    String& operator=(String&& other);
     String& operator=(const String& other);
     String operator+=(const String& rhs);
     const char operator[](size_t index);
@@ -48,5 +49,5 @@ private:
     } m_string;
 };
 
-//#include "String.cpp"
+#include "String.cpp"
 #endif

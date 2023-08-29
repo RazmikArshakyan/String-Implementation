@@ -39,8 +39,9 @@ String::String(const char *str)
                 break;
             }
             m_string.m_on_stack[i] = str[i];
-        }  
+        }
         m_in_stack = true;
+        m_in_heap = false;
     }
 }
 
@@ -49,8 +50,12 @@ String::String(const String &other)
     , m_in_stack {other.m_in_stack}
     , m_string {other.m_string}
 {
-    if (m_in_heap) {
+    if (other.m_in_heap) {
         m_string.m_on_heap.m_ptr = new char[m_string.m_on_heap.m_size];
+        for (size_t i{}; i < m_string.m_on_heap.m_size; ++i) {
+            m_string.m_on_heap.m_ptr[i] = other.m_string.m_on_heap.m_ptr[i];
+        }
+        m_string.m_on_heap.m_ptr[m_string.m_on_heap.m_size] = '\0';
     }
 }
 
@@ -59,7 +64,12 @@ String::String(String &&other)
     , m_in_stack {other.m_in_stack}
     , m_string {other.m_string}
 {
+    if (m_in_heap) {
+        other.m_string.m_on_heap.m_ptr = nullptr;
+        other.m_string.m_on_heap.m_size = 0;
+    }
 }
+
 
 String::String(std::initializer_list<char> init_list)
 {
@@ -152,6 +162,26 @@ String::~String()
     }
 }
 
+String &String::operator=(String &&other)
+{
+    if (this != &other && other.m_in_heap) {
+        delete[] m_string.m_on_heap.m_ptr;
+
+        m_string.m_on_heap.m_ptr = other.m_string.m_on_heap.m_ptr;
+        other.m_string.m_on_heap.m_ptr = nullptr;
+    }
+
+    else if (this != &other && other.m_in_stack) {
+        for (size_t i{}; i < other.m_stack_size; ++i) {
+            m_string.m_on_stack[i] = other.m_string.m_on_stack[i];
+        }
+        m_in_stack = true;
+        m_in_heap = false;
+        m_string.m_on_stack[size()] = '\0';
+    }
+    return *this;
+}
+
 String& String::operator=(const String& other) {
     if (this == &other) {
         return *this; 
@@ -171,6 +201,9 @@ String& String::operator=(const String& other) {
             m_string.m_on_stack[i] = other.m_string.m_on_stack[i];
         }
         m_in_stack = true;
+        m_in_heap = false;
+        m_string.m_on_stack[size()] = '\0';
+       
     }
     return *this;
 }
